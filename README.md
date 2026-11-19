@@ -8,19 +8,21 @@
 
 | App | 配置 | 独立 JS |
 |---|---|---|
-| Egern | `xingchi.egern.yaml` | `xingchi.egern.js` |
-| Loon 3.5.1(988)+ | `xingchi.loon.lpx` | `xingchi.loon.js` |
+| Egern | [直接导入远程模块](https://raw.githubusercontent.com/ZHT0711/xingchi-api-loon-egern/refs/heads/main/xingchi.egern.yaml) | `xingchi.egern.js`（自动下载） |
+| Loon 3.5.1(988)+ | [直接导入远程插件](https://raw.githubusercontent.com/ZHT0711/xingchi-api-loon-egern/refs/heads/main/xingchi.loon.lpx) | `xingchi.loon.js`（自动下载） |
 
-两份 JS 都是独立文件，无需导入其他脚本。详细安装步骤见 [INSTALL.md](INSTALL.md)。
+只需导入对应的模块或插件地址，App 会下载配套的独立 JS，无需手动导入 JS 或修改脚本路径。详细安装步骤见 [INSTALL.md](INSTALL.md)。
+
+2026-11-20 更新：默认 Egern 模块移除了导入时可能因版本兼容而报错的可选 `env_schema` 字段，并加入“星驰 API 手动签到”入口。使用旧的本地模块时，请删除旧模块后按上面的远程地址重新导入。
 
 ## 最快开始
 
-1. 将对应 JS 和配置一起导入 App，检查配置内三处脚本路径。
+1. 将上表对应的远程地址导入 App 并启用。
 2. 启用 App 的 HTTPS 解密和本机证书信任；解密域名仅为 `xingchiapi.com`。
 3. 在手机浏览器正常登录星驰，并打开仪表盘；首次设置可退出再登录以捕获完整会话。
-4. 收到“登录信息已获取”通知后，手动运行“星驰 API 每日登录签到”。此后由定时任务运行。
+4. 收到“登录信息已获取”通知后，Egern 运行“星驰 API 手动签到”；Loon 运行“星驰 API 每日登录签到”。此后由定时任务运行。
 
-桌面 Chrome 的登录状态不会自动传入手机。若使用桌面已有会话，可在 Chrome 开发者工具的 Application → Local Storage → `https://xingchiapi.com` 中，将 `auth_token` 和 `refresh_token` 手动填入手机 App 的对应 Token 设置。无需发送到聊天中，也无需写入 JS 或 YAML 文件。
+首次使用仍需完成手机端证书信任和网页登录。桌面 Chrome 的登录状态不会自动传入手机；自动获取会话不需要手填 Token。
 
 ## 运行模式
 
@@ -28,7 +30,7 @@
 - `login`：只验证登录状态、必要时刷新 Token，并显示余额。
 - `clear`：清除脚本保存的本地会话。再次使用时改回 `checkin` 并重新获取登录信息。
 
-Egern 设置名为 `ACTION`、`ACCESS_TOKEN`、`REFRESH_TOKEN`；Loon 对应 `action`、`access_token`、`refresh_token`。两个 Token 字段通常留空，供自动捕获使用。若手动设置，脚本仅在设置变化时导入，后续会保存刷新接口返回的新令牌，避免每次重新使用已经轮换的旧 Refresh Token。
+Egern 默认模块无需设置参数，默认运行 `checkin`。脚本仍支持通过本机环境变量传入 `ACTION`、`ACCESS_TOKEN`、`REFRESH_TOKEN`（高级用法）；默认模块不再声明 `env_schema` 参数界面。Loon 对应参数为 `action`、`access_token`、`refresh_token`，两个 Token 通常留空，供自动捕获使用。若手动设置，脚本仅在设置变化时导入，后续会保存刷新接口返回的新令牌，避免每次重新使用已经轮换的旧 Refresh Token。
 
 每份安装保存一个账户。再次登录其他账户会更新保存的会话；运行中检测到会话被替换时会停止，并提示重新运行。
 

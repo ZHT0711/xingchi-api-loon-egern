@@ -1,43 +1,29 @@
 name: 星驰 API 登录签到
-description: 登录后保存星驰 API 登录凭据，每日 09:00 自动刷新登录并领取签到奖励。
+description: 直接导入本模块即可自动下载配套脚本；网页登录一次获取会话，每日 09:00 自动刷新登录并签到。
 icon: checkmark.seal.fill
 open_url: https://xingchiapi.com/
-env_schema:
-  ACTION:
-    name: 运行模式
-    description: checkin 为验证登录并签到，login 为仅验证登录（必要时刷新），clear 为清除已保存凭据；默认 checkin。
-    default_value: checkin
-    options:
-      - checkin
-      - login
-      - clear
-  ACCESS_TOKEN:
-    name: Access Token（选填）
-    description: 通常无需填写；开启模块后在手机浏览器登录，可自动获取。手动填写时仅放在本机模块设置。
-    default_value: ''
-  REFRESH_TOKEN:
-    name: Refresh Token（选填）
-    description: 配合 Access Token 手动导入；需要长期自动刷新时应同时提供。不要写入分享的模块文件。
-    default_value: ''
 scriptings:
   - http_request:
       name: 星驰 API 获取登录请求
       match: '^https://xingchiapi\.com/api/v1/auth/me(?:\?|$)'
-      # 先导入 JS；如相对路径无法识别，修改为 Egern 中该脚本的实际本地路径。
-      script_url: xingchi.egern.js
+      script_url: https://raw.githubusercontent.com/ZHT0711/xingchi-api-loon-egern/refs/heads/main/xingchi.egern.js
       timeout: 10
       body_required: false
   - http_response:
       name: 星驰 API 获取登录响应
       match: '^https://xingchiapi\.com/api/v1/auth/'
-      script_url: xingchi.egern.js
+      script_url: https://raw.githubusercontent.com/ZHT0711/xingchi-api-loon-egern/refs/heads/main/xingchi.egern.js
       timeout: 10
       body_required: true
       max_size: 1048576
   - schedule:
       name: 星驰 API 每日登录签到
       cron: '0 9 * * *'
-      script_url: xingchi.egern.js
+      script_url: https://raw.githubusercontent.com/ZHT0711/xingchi-api-loon-egern/refs/heads/main/xingchi.egern.js
+      timeout: 180
+  - generic:
+      name: 星驰 API 手动签到
+      script_url: https://raw.githubusercontent.com/ZHT0711/xingchi-api-loon-egern/refs/heads/main/xingchi.egern.js
       timeout: 180
 mitm:
   hostnames:
