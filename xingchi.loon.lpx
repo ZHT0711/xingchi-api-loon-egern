@@ -1,0 +1,21 @@
+#!name=星驰 API 登录签到
+#!desc=登录后保存登录凭据，每日 09:00 自动刷新登录并领取签到奖励。先导入配套的本地 JS 脚本。
+#!author=Codex
+#!homepage=https://xingchiapi.com/
+#!loon_version=3.5.1(988)
+#!tag=签到
+
+[Argument]
+action = select,"checkin","login","clear",tag=运行模式,desc=checkin 为验证登录并签到；login 为仅验证登录；clear 为清除本机凭据
+access_token = input,"",tag=Access Token（选填）,desc=通常无需填写；开启插件后在手机浏览器登录即可自动获取
+refresh_token = input,"",tag=Refresh Token（选填）,desc=手动导入时同时填写以支持自动刷新；仅保存在本机插件设置
+debug = switch,false,tag=调试模式,desc=仅记录状态和签到判定，不输出令牌
+
+[Script]
+# 脚本可以是本地文件或相对路径。先导入 xingchi.loon.js，必要时替换为 Loon 中的实际本地路径。
+request if ${url} ~= /^https:\/\/xingchiapi\.com\/api\/v1\/auth\/me(?:\?|$)/ then script("xingchi.loon.js") with tag="星驰 API 获取登录请求", timeout=10, requires_body=false
+response if ${url} ~= /^https:\/\/xingchiapi\.com\/api\/v1\/auth\// then script("xingchi.loon.js") with tag="星驰 API 获取登录响应", timeout=10, requires_body=true
+cron "0 9 * * *" then script("xingchi.loon.js", {${action}, ${access_token}, ${refresh_token}, ${debug}}) with tag="星驰 API 每日登录签到", timeout=180
+
+[MITM]
+hostname = xingchiapi.com
